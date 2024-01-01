@@ -1,0 +1,8 @@
+name: IA-Edit
+version: '${version}'
+main: com.epicplayera10.iaedit.IAEdit
+api-version: 1.19
+authors: [EpicPlayerA10]
+depend:
+  - FastAsyncWorldEdit
+  - ItemsAdder
