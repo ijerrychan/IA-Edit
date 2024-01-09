@@ -40,10 +40,10 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
         CustomBlock customBlock = CustomBlock.getInstance(input);
         if (customBlock == null) return null;
 
-        return createIABlockWithNbt(customBlock);
+        return createBaseBlockFromCustomBlock(customBlock);
     }
 
-    private BaseBlock createIABlockWithNbt(CustomBlock customBlock) {
+    private BaseBlock createBaseBlockFromCustomBlock(CustomBlock customBlock) {
         BlockState blockState;
         if (customBlock.getBaseBlockData() == null) {
             blockState = BlockTypes.SPAWNER.getDefaultState();
@@ -51,7 +51,6 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
             blockState = BukkitAdapter.adapt(customBlock.getBaseBlockData());
         }
 
-        // Set nbt for further block place
         return new BaseBlock(blockState);
     }
 }

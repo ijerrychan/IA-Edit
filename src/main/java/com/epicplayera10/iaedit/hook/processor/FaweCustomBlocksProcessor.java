@@ -37,9 +37,8 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
                 continue;
             }
 
-            char[] blocksSet;
             // loadIfPresent shouldn't be null if set.hasSection(layer) is true
-            System.arraycopy(Objects.requireNonNull(set.loadIfPresent(layer)), 0, (blocksSet = new char[4096]), 0, 4096);
+            char[] blocksSet = set.loadIfPresent(layer);
 
             // Account for negative layers
             int by = layer << 4;
