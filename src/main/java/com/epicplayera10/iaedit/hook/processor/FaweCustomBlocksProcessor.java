@@ -18,6 +18,8 @@ import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class FaweCustomBlocksProcessor implements IBatchProcessor {
     private final World world;
@@ -28,51 +30,56 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
 
     @Override
     public IChunkSet processSet(IChunk chunk, IChunkGet get, IChunkSet set) {
-        int bx = chunk.getX() << 4;
-        int bz = chunk.getZ() << 4;
+        return null;
+    }
 
-        // Remove existing custom blocks
-        for (int layer = get.getMinSectionPosition(); layer <= get.getMaxSectionPosition(); layer++) {
-            if (!set.hasSection(layer)) {
-                continue;
-            }
+    @Override
+    public Future<?> postProcessSet(IChunk chunk, IChunkGet get, IChunkSet set) {
+        return CompletableFuture.runAsync(() -> {
+            int bx = chunk.getX() << 4;
+            int bz = chunk.getZ() << 4;
 
-            // loadIfPresent shouldn't be null if set.hasSection(layer) is true
-            char[] blocksSet = set.loadIfPresent(layer);
+            // Remove existing custom blocks
+            for (int layer = get.getMinSectionPosition(); layer <= get.getMaxSectionPosition(); layer++) {
+                if (!set.hasSection(layer)) {
+                    continue;
+                }
 
-            // Account for negative layers
-            int by = layer << 4;
-            for (int y = 0, index = 0; y < 16; y++) {
-                int yy = y + by;
-                for (int z = 0; z < 16; z++) {
-                    int zz = z + bz;
-                    for (int x = 0; x < 16; x++, index++) {
-                        final int rawState = blocksSet[index];
-                        if (rawState != BlockTypesCache.ReservedIDs.__RESERVED__) {
-                            int xx = bx + x;
+                // loadIfPresent shouldn't be null if set.hasSection(layer) is true
+                char[] blocksSet = set.loadIfPresent(layer);
 
-                            Location location = new Location(this.world, xx, yy, zz);
-                            if (CustomBlock.Advanced.getInCustomRegion(location) != null) {
-                                // Remove existing custom block
-                                CustomBlock.Advanced.removeFromCustomRegion(location);
-                            }
+                // Account for negative layers
+                int by = layer << 4;
+                for (int y = 0, index = 0; y < 16; y++) {
+                    int yy = y + by;
+                    for (int z = 0; z < 16; z++) {
+                        int zz = z + bz;
+                        for (int x = 0; x < 16; x++, index++) {
+                            final int rawState = blocksSet[index];
+                            if (rawState != BlockTypesCache.ReservedIDs.__RESERVED__) {
+                                int xx = bx + x;
 
-                            // Match custom block with block state and raw place it
-                            BlockState state = BlockTypesCache.states[rawState];
-                            if (CustomBlocksFactory.isCustomBlockType(state.getBlockType())) {
-                                CustomBlock customBlock = IACache.getCustomBlockByBlockData(BukkitAdapter.adapt(state));
-                                if (customBlock == null) continue;
+                                Location location = new Location(this.world, xx, yy, zz);
+                                if (CustomBlock.Advanced.getInCustomRegion(location) != null) {
+                                    // Remove existing custom block
+                                    CustomBlock.Advanced.removeFromCustomRegion(location);
+                                }
 
-                                // Recover custom block
-                                CustomBlock.Advanced.placeInCustomRegion(customBlock, location);
+                                // Match custom block with block state and raw place it
+                                BlockState state = BlockTypesCache.states[rawState];
+                                if (CustomBlocksFactory.isCustomBlockType(state.getBlockType())) {
+                                    CustomBlock customBlock = IACache.getCustomBlockByBlockData(BukkitAdapter.adapt(state));
+                                    if (customBlock == null) continue;
+
+                                    // Recover custom block
+                                    CustomBlock.Advanced.placeInCustomRegion(customBlock, location);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-
-        return set;
+        });
     }
 
     @Nullable

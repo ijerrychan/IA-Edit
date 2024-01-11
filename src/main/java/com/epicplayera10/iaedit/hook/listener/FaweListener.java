@@ -12,7 +12,7 @@ public class FaweListener {
     @Subscribe
     public void onEditSession(EditSessionEvent event) {
         if (event.getStage() == EditSession.Stage.BEFORE_CHANGE) {
-            event.getExtent().addProcessor(
+            event.getExtent().addPostProcessor(
                 new FaweCustomBlocksProcessor(BukkitAdapter.adapt(event.getWorld()))
             );
         }
