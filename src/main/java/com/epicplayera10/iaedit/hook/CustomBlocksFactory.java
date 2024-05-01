@@ -51,6 +51,6 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
             blockState = BukkitAdapter.adapt(customBlock.getBaseBlockData());
         }
 
-        return new BaseBlock(blockState);
+        return blockState.toBaseBlock();
     }
 }

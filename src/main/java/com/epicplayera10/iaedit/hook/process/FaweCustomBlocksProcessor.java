@@ -1,26 +1,16 @@
-package com.epicplayera10.iaedit.hook.processor;
+package com.epicplayera10.iaedit.hook.process;
 
-import com.epicplayera10.iaedit.hook.CustomBlocksFactory;
 import com.fastasyncworldedit.core.extent.processor.ProcessorScope;
 import com.fastasyncworldedit.core.queue.IBatchProcessor;
 import com.fastasyncworldedit.core.queue.IChunk;
 import com.fastasyncworldedit.core.queue.IChunkGet;
 import com.fastasyncworldedit.core.queue.IChunkSet;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.Extent;
 import com.sk89q.worldedit.world.block.BlockState;
 import com.sk89q.worldedit.world.block.BlockTypesCache;
-import com.epicplayera10.iaedit.utils.IACache;
-import dev.lone.itemsadder.api.CustomBlock;
-import dev.lone.itemsadder.api.CustomFurniture;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public class FaweCustomBlocksProcessor implements IBatchProcessor {
     private final World world;
@@ -58,8 +48,10 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
                     for (int x = 0; x < 16; x++, index++) {
                         final int rawStateSet = blocksSet[index];
                         if (rawStateSet == BlockTypesCache.ReservedIDs.__RESERVED__) continue;
-
                         final int rawStateGet = blocksGet[index];
+
+                        // If they are the same, skip
+                        if (rawStateSet == rawStateGet) continue;
 
                         int xx = bx + x;
 
@@ -67,19 +59,8 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
                         BlockState stateGet = BlockTypesCache.states[rawStateGet];
 
                         Location location = new Location(this.world, xx, yy, zz);
-                        if (CustomBlocksFactory.isCustomBlockType(stateGet.getBlockType())) {
-                            // Remove existing custom block
-                            CustomBlock.Advanced.removeFromCustomRegion(location);
-                        }
 
-                        // Match custom block with block state and raw place it
-                        if (CustomBlocksFactory.isCustomBlockType(stateSet.getBlockType())) {
-                            CustomBlock customBlock = IACache.getCustomBlockByBlockData(BukkitAdapter.adapt(stateSet));
-                            if (customBlock == null) continue;
-
-                            // Recover custom block
-                            CustomBlock.Advanced.placeInCustomRegion(customBlock, location);
-                        }
+                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet);
                     }
                 }
             }
@@ -89,7 +70,7 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
     @Nullable
     @Override
     public Extent construct(Extent child) {
-        throw new UnsupportedOperationException();
+        return new WorldEditCustomBlocksExtent(child, this.world);
     }
 
     @Override
