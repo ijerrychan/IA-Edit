@@ -1,7 +1,7 @@
 name: IA-Edit
 version: '${version}'
 main: com.epicplayera10.iaedit.IAEdit
-api-version: 1.19
+api-version: 1.16
 authors: [EpicPlayerA10]
 depend:
   - WorldEdit
