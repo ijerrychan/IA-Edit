@@ -35,7 +35,7 @@ dependencies {
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") { transitive = false }
 
-    compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.2-beta-r3-b'
+    compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14'
 }
 
 def targetJavaVersion = 17
