@@ -23,7 +23,7 @@ public class WorldEditCustomBlocksExtent extends AbstractDelegateExtent {
         Location location = BukkitAdapter.adapt(this.world, position);
         BlockState stateBefore = BukkitAdapter.adapt(location.getBlock().getBlockData());
 
-        CustomBlocksWorldEditUtils.processBlock(location, stateToSet, stateBefore);
+        CustomBlocksWorldEditUtils.processBlock(location, stateToSet, stateBefore, stateToSet.toBaseBlock().getNbtData(), stateBefore.toBaseBlock().getNbtData());
 
         return super.setBlock(position, stateToSet);
     }

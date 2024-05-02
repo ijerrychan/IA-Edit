@@ -22,15 +22,17 @@ public class IACache {
             CustomBlock customBlock = CustomBlock.getInstance(customBlockId);
 
             BlockData customBlockBlockData = customBlock.getBaseBlockData();
-            if (customBlockBlockData == null) continue;
+            if (customBlockBlockData == null) {
+                // Tile block (spawner)
 
-            BLOCK_DATA_TO_CUSTOM_BLOCK_CACHE.put(customBlockBlockData, customBlock);
-
-            ItemStack customBlockItem = customBlock.getItemStack();
-            ITEM_TYPE_CUSTOM_MODEL_DATA_TO_CUSTOM_BLOCK_CACHE.put(
-                ObjectIntPair.of(customBlockItem.getType().getKey().toString(), customBlockItem.getItemMeta().getCustomModelData()),
-                customBlock
-            );
+                ItemStack customBlockItem = customBlock.getItemStack();
+                ITEM_TYPE_CUSTOM_MODEL_DATA_TO_CUSTOM_BLOCK_CACHE.put(
+                    ObjectIntPair.of(customBlockItem.getType().getKey().toString(), customBlockItem.getItemMeta().getCustomModelData()),
+                    customBlock
+                );
+            } else {
+                BLOCK_DATA_TO_CUSTOM_BLOCK_CACHE.put(customBlockBlockData, customBlock);
+            }
         }
     }
 

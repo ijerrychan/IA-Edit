@@ -60,7 +60,7 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
 
                         Location location = new Location(this.world, xx, yy, zz);
 
-                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet);
+                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet, set.getTile(x, yy, z), get.getTile(x, yy, z));
                     }
                 }
             }

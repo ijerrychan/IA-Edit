@@ -3,8 +3,8 @@ package com.epicplayera10.iaedit.hook.process;
 import com.epicplayera10.iaedit.hook.CustomBlocksFactory;
 import com.epicplayera10.iaedit.utils.IACache;
 import com.sk89q.jnbt.CompoundTag;
+import com.sk89q.jnbt.Tag;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.util.nbt.CompoundBinaryTag;
 import com.sk89q.worldedit.world.block.BlockStateHolder;
 import com.sk89q.worldedit.world.block.BlockType;
 import com.sk89q.worldedit.world.block.BlockTypes;
@@ -13,13 +13,15 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+import java.util.Map;
+
 public class CustomBlocksWorldEditUtils {
 
     /**
      * The core method that processes the custom block placement or removal.
      */
-    public static void processBlock(Location location, BlockStateHolder<?> stateToSet, BlockStateHolder<?> stateBefore) {
-        System.out.println("before: "+stateBefore.getNbt());
+    public static void processBlock(Location location, BlockStateHolder<?> stateToSet, BlockStateHolder<?> stateBefore, CompoundTag nbtToSet, CompoundTag nbtBefore) {
         if (CustomBlocksFactory.isCustomBlockType(stateBefore.getBlockType())) {
             // Remove existing custom block
             CustomBlock.Advanced.removeFromCustomRegion(location);
@@ -28,7 +30,7 @@ public class CustomBlocksWorldEditUtils {
         // Match custom block with block state and raw place it
         BlockType stateToSetType = stateToSet.getBlockType();
         if (CustomBlocksFactory.isCustomBlockType(stateToSetType)) {
-            CustomBlock customBlock = getCustomBlockByBlockState(stateToSet);
+            CustomBlock customBlock = getCustomBlockByBlockState(stateToSet, nbtToSet);
             if (customBlock == null) return;
 
             // Recover custom block
@@ -40,31 +42,27 @@ public class CustomBlocksWorldEditUtils {
      * Get the custom block by the block state.
      */
     @Nullable
-    private static CustomBlock getCustomBlockByBlockState(@NotNull BlockStateHolder<?> blockState) {
-        if (blockState.getBlockType() == BlockTypes.SPAWNER && blockState.getNbt() != null) {
+    private static CustomBlock getCustomBlockByBlockState(@NotNull BlockStateHolder<?> blockState, @Nullable CompoundTag nbt) {
+        if (blockState.getBlockType() == BlockTypes.SPAWNER && nbt != null) {
             // Tile block (spawner)
 
-            CompoundTag nbt = blockState.getNbtData();
-            System.out.println(nbt);
-            //System.out.println("spawndata: "+nbt.get("SpawnData"));
-            //System.out.println("spawndata2: "+nbt.getCompound("SpawnData"));
+            CompoundTag spawnData = (CompoundTag) nbt.getValue().get("SpawnData");
+            CompoundTag entity = (CompoundTag) spawnData.getValue().get("entity");
+            List<CompoundTag> armorItems = entity.getList("ArmorItems", CompoundTag.class);
+            CompoundTag itemNbt = armorItems.get(3);
+            Map<String, Tag> itemNbtMap = itemNbt.getValue();
 
-            CompoundTag itemNbt = nbt.getC("SpawnData")
-                .getCompound("entity")
-                .getList("ArmorItems")
-                .getCompound(3);
-
-            if (itemNbt.get("id") == null || itemNbt.get("tag") == null) return null;
+            if (!itemNbtMap.containsKey("id") || !itemNbtMap.containsKey("tag")) return null;
 
             String itemId = itemNbt.getString("id");
-            CompoundBinaryTag itemTag = itemNbt.getCompound("tag");
+            CompoundTag itemTag = (CompoundTag) itemNbtMap.get("tag");
 
-            if (itemTag.get("CustomModelData") == null) return null;
+            if (!itemTag.getValue().containsKey("CustomModelData")) return null;
             int customModelData = itemTag.getInt("CustomModelData");
 
             return IACache.getCustomBlockByItemTypeAndCustomModelData(itemId, customModelData);
         } else {
-            return IACache.getCustomBlockByBlockData(BukkitAdapter.adapt(blockState));
+            return IACache.getCustomBlockByBlockData(BukkitAdapter.adapt(blockState.toImmutableState()));
         }
     }
 }
