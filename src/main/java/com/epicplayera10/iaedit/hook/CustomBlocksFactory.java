@@ -15,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class CustomBlocksFactory extends InputParser<BaseBlock> {
     public CustomBlocksFactory() {
@@ -30,12 +29,6 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
             || blockType == BlockTypes.CHORUS_PLANT
             || blockType == BlockTypes.TRIPWIRE
             || blockType == BlockTypes.SPAWNER;
-    }
-
-    @Override
-    public Stream<String> getSuggestions(String input) {
-        return CustomBlock.getNamespacedIdsInRegistry().stream()
-            .filter(namespacedID -> namespacedID.contains(input));
     }
 
     @Override
