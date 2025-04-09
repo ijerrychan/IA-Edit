@@ -10,7 +10,7 @@ import com.sk89q.worldedit.event.extent.EditSessionEvent;
 public class FaweCompatibility {
 
     public static void addProcessor(EditSessionEvent event) {
-        event.getExtent().addPostProcessor(
+        event.getExtent().addProcessor(
             new FaweCustomBlocksProcessor(BukkitAdapter.adapt(event.getWorld()))
         );
     }

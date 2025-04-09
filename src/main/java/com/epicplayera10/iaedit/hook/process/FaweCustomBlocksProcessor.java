@@ -1,6 +1,5 @@
 package com.epicplayera10.iaedit.hook.process;
 
-import com.fastasyncworldedit.core.extent.processor.ProcessorScope;
 import com.fastasyncworldedit.core.queue.IBatchProcessor;
 import com.fastasyncworldedit.core.queue.IChunk;
 import com.fastasyncworldedit.core.queue.IChunkGet;
@@ -21,11 +20,6 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
 
     @Override
     public IChunkSet processSet(IChunk chunk, IChunkGet get, IChunkSet set) {
-        return null;
-    }
-
-    @Override
-    public void postProcess(IChunk chunk, IChunkGet get, IChunkSet set) {
         int bx = chunk.getX() << 4;
         int bz = chunk.getZ() << 4;
 
@@ -35,46 +29,36 @@ public class FaweCustomBlocksProcessor implements IBatchProcessor {
                 continue;
             }
 
-            // loadIfPresent shouldn't be null if set.hasSection(layer) is true
-            char[] blocksSet = set.loadIfPresent(layer);
-            char[] blocksGet = get.loadIfPresent(layer);
-
             // Account for negative layers
             int by = layer << 4;
-            for (int y = 0, index = 0; y < 16; y++) {
+            for (int y = 0; y < 16; y++) {
                 int yy = y + by;
                 for (int z = 0; z < 16; z++) {
                     int zz = z + bz;
-                    for (int x = 0; x < 16; x++, index++) {
-                        final int rawStateSet = blocksSet[index];
-                        if (rawStateSet == BlockTypesCache.ReservedIDs.__RESERVED__) continue;
-                        final int rawStateGet = blocksGet[index];
+                    for (int x = 0; x < 16; x++) {
 
-                        // If they are the same, skip
-                        if (rawStateSet == rawStateGet) continue;
+                        BlockState stateSet = set.getBlock(x, yy, z);
+                        if (stateSet.getInternalId() == BlockTypesCache.ReservedIDs.__RESERVED__) continue;
+                        BlockState stateGet = get.getBlock(x, yy, z);
 
                         int xx = bx + x;
 
-                        BlockState stateSet = BlockTypesCache.states[rawStateSet];
-                        BlockState stateGet = BlockTypesCache.states[rawStateGet];
+                        // If they are the same, skip
+                        if (stateSet == stateGet) continue;
 
                         Location location = new Location(this.world, xx, yy, zz);
 
-                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet, set.getTile(x, yy, z), get.getTile(x, yy, z));
+                        CustomBlocksWorldEditUtils.processBlock(location, stateSet, stateGet, stateSet.getNbtData(), stateGet.getNbtData());
                     }
                 }
             }
         }
+        return set;
     }
 
     @Nullable
     @Override
     public Extent construct(Extent child) {
-        return new WorldEditCustomBlocksExtent(child, this.world);
-    }
-
-    @Override
-    public ProcessorScope getScope() {
-        return ProcessorScope.READING_SET_BLOCKS;
+        throw new UnsupportedOperationException("Processing only");
     }
 }

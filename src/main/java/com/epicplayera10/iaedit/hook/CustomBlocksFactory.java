@@ -35,8 +35,9 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
     @Override
     public Stream<String> getSuggestions(String input) {
         return CustomBlock.getNamespacedIdsInRegistry().stream()
-            .filter(namespacedID -> namespacedID.contains(input));
+                .filter(namespacedID -> namespacedID.contains(input));
     }
+
 
     @Override
     public BaseBlock parseFromInput(String input, ParserContext context) {

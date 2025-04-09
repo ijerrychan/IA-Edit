@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'com.epicplayera10'
-version = '1.0.0'
+version = '1.0.1'
 
 repositories {
     mavenCentral()
@@ -16,29 +16,32 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
 
-    maven { url = uri("https://repo.papermc.io/repository/maven-public/") }
-
     maven {
         url 'https://jitpack.io'
     }
 
-    //maven { url 'https://maven.enginehub.org/repo/' }
+    maven {
+        name = "matteodev"
+        url = "https://maven.devs.beer"
+    }
+
+    maven { url 'https://maven.enginehub.org/repo/' }
 }
 
 dependencies {
-    compileOnly "io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT"
+    compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
 
     //compileOnly("com.sk89q.worldedit:worldedit-core:7.3.0")
     //compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.3.0")
 
-    implementation(platform("com.intellectualsites.bom:bom-newest:1.44"))
+    implementation(platform("com.intellectualsites.bom:bom-newest:1.52"))
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Core")
     compileOnly("com.fastasyncworldedit:FastAsyncWorldEdit-Bukkit") { transitive = false }
 
-    compileOnly 'com.github.LoneDev6:API-ItemsAdder:3.6.3-beta-14'
+    compileOnly 'dev.lone:api-itemsadder:4.0.9'
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 21
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
