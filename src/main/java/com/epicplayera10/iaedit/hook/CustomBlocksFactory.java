@@ -38,7 +38,6 @@ public class CustomBlocksFactory extends InputParser<BaseBlock> {
                 .filter(namespacedID -> namespacedID.contains(input));
     }
 
-
     @Override
     public BaseBlock parseFromInput(String input, ParserContext context) {
         if (!input.contains(":")) return null;
